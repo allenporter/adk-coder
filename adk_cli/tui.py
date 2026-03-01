@@ -23,11 +23,13 @@ from google.adk.runners import Runner
 from google.genai import types
 
 
-from rich.markup import escape
-
 from adk_cli.confirmation import confirmation_manager
 from adk_cli.status import status_manager
-from adk_cli.summarize import summarize_tool_call, summarize_tool_result
+from adk_cli.summarize import (
+    summarize_tool_call,
+    summarize_tool_call_args,
+    summarize_tool_result,
+)
 from adk_cli.constants import APP_NAME
 
 logger = logging.getLogger(__name__)
@@ -147,17 +149,34 @@ class ThoughtMessage(Collapsible):
 
 
 class ToolMessage(Collapsible):
-    """A widget to display tool outputs."""
+    """A widget to display tool inputs and outputs."""
 
-    def __init__(self, summary: str, raw_output: str):
+    def __init__(self, summary: str, args_text: str, result_text: str):
         # Limit output to prevent lag
-        if len(raw_output) > 10000:
-            raw_output = raw_output[:10000] + "\n\n... (output truncated) ..."
+        if len(result_text) > 10000:
+            result_text = result_text[:10000] + "\n\n... (result truncated) ..."
+        if len(args_text) > 10000:
+            args_text = args_text[:10000] + "\n\n... (args truncated) ..."
 
-        self._content_widget = Static(raw_output, classes="tool-content")
-        super().__init__(self._content_widget, title=f"🛠️ {summary}")
+        content = Vertical(
+            Label("[bold underline]Arguments[/]"),
+            Static(args_text, classes="tool-args"),
+            Label("[bold underline]Result[/]"),
+            Static(result_text, classes="tool-result"),
+            classes="tool-content-container",
+        )
+
+        super().__init__(content, title=f"🛠️ {summary}")
         self.add_class("tool-container")
-        self.collapsed = True  # Start collapsed as requested
+        self.collapsed = True
+
+    def update_result(self, summary: str, result_text: str) -> None:
+        """Updates the widget with the final result summary and text."""
+        self.title = f"🛠️ {summary}"
+        if len(result_text) > 10000:
+            result_text = result_text[:10000] + "\n\n... (result truncated) ..."
+
+        self.query_one(".tool-result", Static).update(result_text)
 
     @on(Collapsible.Expanded)
     def on_expanded(self) -> None:
@@ -191,7 +210,7 @@ class Message(Static):
         if self.role == "status":
             return self.text
         if self.role == "tool":
-            return f"🛠️  [bold]{escape(self.text)}[/bold]"
+            return f"🛠️  {self.text}"
         prefix = "✦ Agent" if self.role == "agent" else "👤 You"
 
         return Markdown(f"### {prefix}\n\n{self.text}")
@@ -354,8 +373,26 @@ class ChatScreen(Screen):
     .tool-container > Contents {
         background: #1a1a1a;
         color: #007acc;
-        padding: 1;
+        padding: 0;
         border-left: solid #007acc;
+    }
+
+    .tool-content-container {
+        padding: 1;
+    }
+
+    .tool-args, .tool-result {
+        margin: 1 0;
+        padding: 0 1;
+        background: #121212;
+    }
+
+    .tool-args {
+        color: #888;
+    }
+
+    .tool-result {
+        color: #007acc;
     }
 
     .tool-container CollapsibleTitle {
@@ -783,13 +820,10 @@ class ChatScreen(Screen):
                                     pass
 
                         if part.function_response:
-                            # Collapse previous reasoning or tools
+                            # Collapse previous reasoning
                             if current_thought_message:
                                 current_thought_message.finish_streaming()
                                 current_thought_message = None
-                            if current_tool_message:
-                                current_tool_message.collapsed = True
-                                current_tool_message = None
 
                             # If we have an active agent message, "close" it
                             if current_agent_message:
@@ -812,13 +846,23 @@ class ChatScreen(Screen):
                                     call_name, call_args, str(result_raw)
                                 )
 
-                                current_tool_message = ToolMessage(
-                                    summary, str(result_raw)
-                                )
-                                await chat_scroll.mount(
-                                    current_tool_message,
-                                    before=loading_container,
-                                )
+                                if current_tool_message:
+                                    current_tool_message.update_result(
+                                        summary, str(result_raw)
+                                    )
+                                else:
+                                    # Fallback if for some reason the call message wasn't mounted
+                                    args_text = summarize_tool_call_args(
+                                        call_name, call_args
+                                    )
+                                    current_tool_message = ToolMessage(
+                                        summary, args_text, str(result_raw)
+                                    )
+                                    await chat_scroll.mount(
+                                        current_tool_message,
+                                        before=loading_container,
+                                    )
+
                                 chat_scroll.scroll_end()
                                 try:
                                     loading_container.query_one(
@@ -864,12 +908,15 @@ class ChatScreen(Screen):
                         display_name: str = summarize_tool_call(
                             call_name, call.args or {}
                         )
+                        args_display = summarize_tool_call_args(
+                            call_name, call.args or {}
+                        )
 
-                        # Check if this tool call was already mounted (e.g. via thinking reasoning)
-                        # We only mount it here if it wasn't specifically a confirmation tool
-                        # and we haven't already shown a status update for it.
+                        current_tool_message = ToolMessage(
+                            display_name, args_display, "Pending..."
+                        )
                         await chat_scroll.mount(
-                            Message(display_name, role="tool"), before=loading_container
+                            current_tool_message, before=loading_container
                         )
                         chat_scroll.scroll_end()
 
