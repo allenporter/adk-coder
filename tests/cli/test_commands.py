@@ -1,5 +1,5 @@
 from click.testing import CliRunner
-from adk_cli.main import cli
+from adk_coder.main import cli
 from unittest.mock import patch, AsyncMock
 from google.adk.events.event import Event
 from google.genai import types
@@ -9,7 +9,7 @@ def test_cli_help() -> None:
     runner = CliRunner()
     result = runner.invoke(cli, ["--help"])
     assert result.exit_code == 0
-    assert "adk-cli" in result.output
+    assert "adk-coder" in result.output
     assert "agents" in result.output
     assert "mcp" in result.output
 
@@ -31,7 +31,7 @@ def test_cli_mcp() -> None:
 def test_cli_no_api_key_exits_with_instructions() -> None:
     """When no API key is found, should print helpful instructions and exit."""
     runner = CliRunner()
-    with patch("adk_cli.agent_factory._resolve_api_key", return_value=None):
+    with patch("adk_coder.agent_factory._resolve_api_key", return_value=None):
         result = runner.invoke(cli, ["chat", "Hello"])
     assert result.exit_code == 1
     assert "aistudio.google.com" in result.output
@@ -40,8 +40,8 @@ def test_cli_no_api_key_exits_with_instructions() -> None:
 def test_cli_chat_direct() -> None:
     runner = CliRunner()
     with (
-        patch("adk_cli.agent_factory.build_runner_or_exit") as mock_build,
-        patch("adk_cli.tui.AdkTuiApp") as mock_tui,
+        patch("adk_coder.agent_factory.build_runner_or_exit") as mock_build,
+        patch("adk_coder.tui.AdkTuiApp") as mock_tui,
     ):
         mock_build.return_value = mock_build  # just needs to be truthy
         mock_instance = mock_tui.return_value
@@ -53,7 +53,7 @@ def test_cli_chat_direct() -> None:
 
 def test_cli_chat_print() -> None:
     runner = CliRunner()
-    with patch("adk_cli.agent_factory.build_runner_or_exit") as mock_build:
+    with patch("adk_coder.agent_factory.build_runner_or_exit") as mock_build:
         mock_runner = mock_build.return_value
         fake_event = Event(
             author="model",
@@ -74,8 +74,8 @@ def test_cli_chat_print() -> None:
 def test_cli_no_args_shows_tui() -> None:
     runner = CliRunner()
     with (
-        patch("adk_cli.agent_factory.build_runner_or_exit") as mock_build,
-        patch("adk_cli.tui.AdkTuiApp") as mock_tui,
+        patch("adk_coder.agent_factory.build_runner_or_exit") as mock_build,
+        patch("adk_coder.tui.AdkTuiApp") as mock_tui,
     ):
         mock_build.return_value = mock_build
         mock_instance = mock_tui.return_value
@@ -146,5 +146,5 @@ def test_cli_sessions_gc_old_sessions() -> None:
         assert result.exit_code == 0
         assert "Successfully deleted 1 sessions." in result.output
         mock_instance.delete_session.assert_called_once_with(
-            app_name="adk_cli", user_id="user1", session_id="old-session"
+            app_name="adk_coder", user_id="user1", session_id="old-session"
         )

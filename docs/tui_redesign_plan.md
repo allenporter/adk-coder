@@ -43,7 +43,7 @@ To maintain a high-signal-to-noise ratio in the main chat window. Conversation (
     - Option B (Clear): Simply clear the tray to focus on the Agent's final textual response.
 
 ### 3. Messaging Refactor
-- Update `adk_cli/tui.py`:
+- Update `adk_coder/tui.py`:
     - Modify `Message` rendering to be even more compact when appearing in the tray.
     - Update `ChatScreen.process_query` to target `#activity-tray` for `role="tool"` and `role="status"` messages.
 

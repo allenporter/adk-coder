@@ -1,8 +1,8 @@
 import click
 import asyncio
 from datetime import datetime
-from adk_cli.projects import find_project_root, get_project_id, get_session_db_path
-from adk_cli.constants import APP_NAME
+from adk_coder.projects import find_project_root, get_project_id, get_session_db_path
+from adk_coder.constants import APP_NAME
 
 
 @click.group()

@@ -5,12 +5,12 @@ import uuid
 from typing import Optional, List, Any, Dict
 import logging
 
-from adk_cli.projects import find_project_root, get_project_id, get_session_db_path
-from adk_cli.status import is_session_locked, SessionLock
-from adk_cli.summarize import summarize_tool_call, summarize_tool_result
-from adk_cli.cli.sessions import sessions
-from adk_cli.cli.config import config
-from adk_cli.constants import APP_NAME
+from adk_coder.projects import find_project_root, get_project_id, get_session_db_path
+from adk_coder.status import is_session_locked, SessionLock
+from adk_coder.summarize import summarize_tool_call, summarize_tool_result
+from adk_coder.cli.sessions import sessions
+from adk_coder.cli.config import config
+from adk_coder.constants import APP_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -38,9 +38,9 @@ class DefaultGroup(click.Group):
 
 
 def setup_logging(verbose: bool) -> None:
-    """Configures logging for adk-cli."""
+    """Configures logging for adk-coder."""
     level = logging.DEBUG if verbose else logging.WARNING
-    log_file = "adk-cli.log"
+    log_file = "adk-coder.log"
     logging.basicConfig(
         level=level,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
@@ -94,7 +94,7 @@ async def _get_project_context(
     "--verbose",
     "-v",
     is_flag=True,
-    help="Enable debug logging to a file 'adk-cli.log'.",
+    help="Enable debug logging to a file 'adk-coder.log'.",
 )
 @click.option(
     "--print",
@@ -149,7 +149,7 @@ def cli(
     permission_mode: Optional[str],
     output_format: str,
 ) -> None:
-    """adk-cli: A powerful agentic CLI built with google-adk."""
+    """adk-coder: A powerful agentic CLI built with google-adk."""
     setup_logging(verbose)
     if ctx.invoked_subcommand is None:
         ctx.invoke(chat)
@@ -162,8 +162,8 @@ def cli(
 def chat(ctx: click.Context, query: List[str], print_mode: bool) -> None:
     """Execute a task or start a conversation."""
     from google.genai import types
-    from adk_cli.tui import AdkTuiApp
-    from adk_cli.agent_factory import build_runner_or_exit
+    from adk_coder.tui import AdkTuiApp
+    from adk_coder.agent_factory import build_runner_or_exit
 
     query_str = " ".join(query)
     is_print = print_mode

@@ -1,11 +1,11 @@
-"""Tests for adk_cli.skills module."""
+"""Tests for adk_coder.skills module."""
 
 from pathlib import Path
 from textwrap import dedent
 
 import pytest
 
-from adk_cli.skills import discover_skills, load_skill_from_dir
+from adk_coder.skills import discover_skills, load_skill_from_dir
 
 
 # ---------------------------------------------------------------------------

@@ -25,8 +25,8 @@ import subprocess
 import asyncio
 from typing import Any, Callable, Optional, Dict
 
-from adk_cli.status import status_manager
-from adk_cli.models import ToolPolicy, ToolMetadata
+from adk_coder.status import status_manager
+from adk_coder.models import ToolPolicy, ToolMetadata
 from google.adk.tools.base_tool import BaseTool
 from google.adk.tools.base_toolset import BaseToolset
 from google.adk.tools.function_tool import FunctionTool
@@ -284,9 +284,9 @@ def _is_safe_bash(args: Dict[str, Any]) -> bool:
     CUSTOMIZATION POINT:
     To update the session-wide granular logic for 'bash', see
     `CustomPolicyEngine.allow_for_session` and `_is_session_allowed`
-    in `adk_cli/policy.py`.
+    in `adk_coder/policy.py`.
     """
-    from adk_cli.policy import SAFE_BASH_COMMANDS
+    from adk_coder.policy import SAFE_BASH_COMMANDS
 
     cmd = args.get("command", "").strip()
     return cmd in SAFE_BASH_COMMANDS
@@ -339,7 +339,7 @@ def _get_agent_metadata(agent_name: str) -> dict[str, Any]:
     """Helper to load a specialized agent metadata from its Markdown file."""
     from pathlib import Path
     import yaml
-    from adk_cli.projects import find_project_root
+    from adk_coder.projects import find_project_root
 
     project_root = find_project_root()
 
@@ -386,7 +386,7 @@ async def _run_subagent_task(
     from google.adk.runners import Runner
     from google.adk.sessions.in_memory_session_service import InMemorySessionService
     from google.genai import types
-    from adk_cli.agent_factory import build_adk_agent
+    from adk_coder.agent_factory import build_adk_agent
 
     # Load metadata from Markdown if available
     metadata = _get_agent_metadata(agent_name)

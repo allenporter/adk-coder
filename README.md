@@ -1,6 +1,6 @@
-# adk-cli
+# adk-coder
 
-`adk-cli` is a powerful, agentic development tool built on the [Google ADK (Agent Development Kit)](https://github.com/google/adk-python). It provides a terminal-based interface (TUI) for interacting with Gemini models that have direct access to your local filesystem and shell.
+`adk-coder` is a powerful, agentic development tool built on the [Google ADK (Agent Development Kit)](https://github.com/google/adk-python). It provides a terminal-based interface (TUI) for interacting with Gemini models that have direct access to your local filesystem and shell.
 
 ## 🌟 Inspiration
 
@@ -22,7 +22,7 @@ This project is inspired by several leading agentic coding tools:
 
 ## 🛠️ How It Works
 
-`adk-cli` leverages Google ADK to orchestrate the agentic loop.
+`adk-coder` leverages Google ADK to orchestrate the agentic loop.
 
 1. **Orchestration**: Uses the `Runner` and `LlmAgent` from ADK to manage the conversation flow and tool execution.
 2. **Policy Engine**: A custom security plugin intercepts every tool call, checking it against a policy (e.g., read-only tools are allowed, while `bash` or `write_file` require a UI confirmation).
@@ -39,8 +39,8 @@ This project is inspired by several leading agentic coding tools:
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-repo/adk-cli.git
-cd adk-cli
+git clone https://github.com/your-repo/adk-coder.git
+cd adk-coder
 
 # Install dependencies (using uv is recommended)
 uv sync
@@ -58,17 +58,17 @@ export GOOGLE_API_KEY="your_api_key_here"
 
 Launch the interactive TUI:
 ```bash
-adk
+adk-coder
 ```
 
 Execute a one-off task:
 ```bash
-adk chat "Review the current directory and list all python files" --print
+adk-coder chat "Review the current directory and list all python files" --print
 ```
 
 Manage global settings:
 ```bash
-adk config set default_model gemini-3-flash-preview
+adk-coder config set default_model gemini-3-flash-preview
 ```
 
 ## 🏗️ Development

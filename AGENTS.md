@@ -1,13 +1,13 @@
-# Agent Instructions for `adk-cli` Development
+# Agent Instructions for `adk-coder` Development
 
-This document provides context and guidelines for agents working on the `adk-cli` codebase itself.
+This document provides context and guidelines for agents working on the `adk-coder` codebase itself.
 
 ## Project Overview
-`adk-cli` is a high-performance, terminal-based agentic development kit. It uses the **Textual** framework for its TUI and is designed to provide a "Gemini-like" interleaved conversation experience.
+`adk-coder` is a high-performance, terminal-based agentic development kit. It uses the **Textual** framework for its TUI and is designed to provide a "Gemini-like" interleaved conversation experience.
 
 ## Core Architectural Principles
 1.  **Async-First**: All I/O-bound tools and TUI updates must be asynchronous. Use `asyncio.to_thread` for legacy synchronous library calls to avoid blocking the Textual main loop.
-2.  **Interleaved UI**: The TUI (`adk_cli/tui.py`) uses a "Flow" model. Thoughts, tool calls, and results are appended dynamically to the conversation scroll area as they happen.
+2.  **Interleaved UI**: The TUI (`adk_coder/tui.py`) uses a "Flow" model. Thoughts, tool calls, and results are appended dynamically to the conversation scroll area as they happen.
 3.  **Graceful Degradation**: Tools should handle errors gracefully and return informative strings rather than crashing the agent loop.
 4.  **Hierarchical Discovery**: Agents and skills are discovered by walking up the directory tree from the current working directory to the project root.
 

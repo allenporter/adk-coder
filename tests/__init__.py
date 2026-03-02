@@ -1,1 +1,1 @@
-"""Tests for adk_cli."""
+"""Tests for adk_coder."""

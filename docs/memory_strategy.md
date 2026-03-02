@@ -21,7 +21,7 @@ Unlike traditional LLM applications that rely on specialized vector databases or
 | **Project Memory** | `ARCHITECTURE.md`, `TODO.md` | Whole Project | Indefinite |
 | **Tool State** | `.adk/state.json` | Tool-specific (e.g., shell CWD) | Cross-session |
 
-## 3. Existing Memory Tools in ADK-CLI
+## 3. Existing Memory Tools in ADK Coder
 
 The current implementation already provides basic working memory through the following:
 

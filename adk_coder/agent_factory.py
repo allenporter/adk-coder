@@ -6,16 +6,16 @@ from typing import Any, Optional
 
 import click
 
-from adk_cli.api_key import load_api_key, load_env_file
-from adk_cli.projects import find_project_root, get_session_db_path
-from adk_cli.settings import load_settings
-from adk_cli.constants import APP_NAME, DEFAULT_MODEL
+from adk_coder.api_key import load_api_key, load_env_file
+from adk_coder.projects import find_project_root, get_session_db_path
+from adk_coder.settings import load_settings
+from adk_coder.constants import APP_NAME, DEFAULT_MODEL
 
 logger = logging.getLogger(__name__)
 
 
 SUPERVISOR_INSTRUCTION = """\
-You are an expert AI software engineer and the primary supervisor for this adk-cli session.
+You are an expert AI software engineer and the primary supervisor for this adk-coder session.
 Your goal is to help the user manage, explore, and modify their codebase efficiently and safely.
 
 Guidelines:
@@ -35,7 +35,7 @@ To get started:
        GOOGLE_API_KEY="YOUR_API_KEY"
        GOOGLE_GENAI_USE_VERTEXAI=FALSE
 
-  adk-cli will load this file automatically on startup.
+  adk-coder will load this file automatically on startup.
 
   See: https://google.github.io/adk-docs/agents/models/google-gemini/#google-ai-studio
 """
@@ -52,12 +52,12 @@ def build_adk_agent(
     instruction: str | None = None,
     tool_names: list[str] | None = None,
     include_skills: bool = True,
-    agent_name: str = "adk_cli_agent",
+    agent_name: str = "adk_coder_agent",
 ) -> Any:
-    """Builds and returns an LlmAgent for adk-cli."""
-    from adk_cli.skills import discover_skills
-    from adk_cli.tools import get_essential_tools
-    from adk_cli.retry_gemini import AdkRetryGemini
+    """Builds and returns an LlmAgent for adk-coder."""
+    from adk_coder.skills import discover_skills
+    from adk_coder.tools import get_essential_tools
+    from adk_coder.retry_gemini import AdkRetryGemini
     from google.adk.agents.llm_agent import LlmAgent
     from google.adk.tools.skill_toolset import SkillToolset
     from google.genai import types
@@ -113,7 +113,7 @@ def build_adk_agent(
     planner = BuiltInPlanner(
         thinking_config=types.ThinkingConfig(
             include_thoughts=True,
-            thinking_budget=1024 if agent_name == "adk_cli_agent" else 512,
+            thinking_budget=1024 if agent_name == "adk_coder_agent" else 512,
         )
     )
 
@@ -130,7 +130,7 @@ def build_adk_agent(
 def build_runner_or_exit(ctx: click.Context, model: str | None = None) -> Any:
     """Resolve the API key and build a Runner, or print instructions and exit."""
     # Defer loading of heavy SDK libraries
-    from adk_cli.policy import CustomPolicyEngine, SecurityPlugin, PermissionMode
+    from adk_coder.policy import CustomPolicyEngine, SecurityPlugin, PermissionMode
     from google.adk.apps.app import App, EventsCompactionConfig
     from google.adk.runners import Runner
     from google.adk.sessions.sqlite_session_service import SqliteSessionService

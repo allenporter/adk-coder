@@ -1,4 +1,4 @@
-"""Skill discovery and loading for adk-cli.
+"""Skill discovery and loading for adk-coder.
 
 Skills are located in common workspace directories following the pattern:
   <workspace-root>/{.agent,.agents,_agent,_agents}/skills/<skill-name>/SKILL.md
@@ -17,7 +17,7 @@ from typing import Optional
 import yaml
 from google.adk.skills import Frontmatter, Resources, Skill
 
-from adk_cli.projects import find_project_root
+from adk_coder.projects import find_project_root
 
 logger = logging.getLogger(__name__)
 
@@ -191,7 +191,7 @@ def discover_skills(
     # Search for built-in skills
     if include_builtin:
         try:
-            builtin_skills_path = importlib.resources.files("adk_cli.skills.builtin")
+            builtin_skills_path = importlib.resources.files("adk_coder.skills.builtin")
             for skill_folder_path in sorted(builtin_skills_path.iterdir()):
                 if not skill_folder_path.is_dir():
                     continue

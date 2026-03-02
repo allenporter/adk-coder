@@ -1,7 +1,7 @@
 import click
 import json
-from adk_cli.settings import load_settings, load_global_settings, save_settings
-from adk_cli.projects import find_project_root
+from adk_coder.settings import load_settings, load_global_settings, save_settings
+from adk_coder.projects import find_project_root
 
 
 @click.group()

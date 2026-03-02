@@ -1,5 +1,5 @@
 import pytest
-from adk_cli.policy import (
+from adk_coder.policy import (
     CustomPolicyEngine,
     SecurityPlugin,
     PermissionMode,

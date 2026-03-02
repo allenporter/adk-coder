@@ -6,9 +6,9 @@ from google.adk.plugins.base_plugin import BasePlugin
 from google.adk.tools.base_tool import BaseTool
 from google.adk.tools.tool_context import ToolContext
 
-from adk_cli.confirmation import confirmation_manager
-from adk_cli.summarize import summarize_tool_call
-from adk_cli.models import ToolPolicy, ConfirmationResult
+from adk_coder.confirmation import confirmation_manager
+from adk_coder.summarize import summarize_tool_call
+from adk_coder.models import ToolPolicy, ConfirmationResult
 
 # Tools that are considered safe and don't require confirmation in 'ask' mode
 # Deprecated: use @tool_metadata(ToolPolicy.READ_ONLY, ...) instead
@@ -79,7 +79,7 @@ class BasePolicyEngine:
 
 class CustomPolicyEngine(BasePolicyEngine):
     """
-    Implements the core policy logic for adk-cli.
+    Implements the core policy logic for adk-coder.
     Maps tool calls to outcomes based on PermissionMode and tool sensitivity.
     """
 

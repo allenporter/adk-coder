@@ -2,14 +2,14 @@
 
 from pathlib import Path
 import pytest
-from adk_cli.tools import _get_agent_metadata
+from adk_coder.tools import _get_agent_metadata
 
 
 def test_builtin_skill_exists():
     """Verify the feature-dev skill exists in the builtin directory."""
     skill_path = (
         Path(__file__).parent.parent.parent
-        / "adk_cli"
+        / "adk_coder"
         / "skills"
         / "builtin"
         / "feature-dev"

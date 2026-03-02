@@ -1,6 +1,6 @@
 from typing import Optional, Callable, Awaitable, Any, Dict
 import json
-from adk_cli.models import ConfirmationResult
+from adk_coder.models import ConfirmationResult
 
 
 class ConfirmationManager:

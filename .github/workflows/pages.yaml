@@ -37,7 +37,7 @@ jobs:
       - name: Install dependencies
         run: |
           uv pip install -r requirements_dev.txt
-      - run: pdoc ./adk_cli -o docs/
+      - run: pdoc ./adk_coder -o docs/
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

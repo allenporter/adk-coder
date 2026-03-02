@@ -1,21 +1,21 @@
-# adk-cli: Bootstrapping MVP Plan
+# adk-coder: Bootstrapping MVP Plan
 
 The goal of this MVP is to create a functional CLI that can orchestrate a `google-adk` agent with enough tools to modify its own source code and verify its work.
 
 ## Current Progress & Implementation
 
 ### 1. Core Orchestration
-- [x] `adk_cli/main.py`: CLI entry point using `click`. Handles basic inputs and flags (`--permission-mode`, `--model`, `--print`).
+- [x] `adk_coder/main.py`: CLI entry point using `click`. Handles basic inputs and flags (`--permission-mode`, `--model`, `--print`).
 - [x] Integrated `google.adk.runners.Runner` with `LlmAgent` and `InMemorySessionService`.
 
 ### 2. Security Policy (Implemented)
-- [x] `adk_cli/policy.py`: Implements `CustomPolicyEngine` and `SecurityPlugin`.
+- [x] `adk_coder/policy.py`: Implements `CustomPolicyEngine` and `SecurityPlugin`.
   - Supports `plan`, `auto`, and `ask` modes.
   - Automatically allows safe tools (e.g., `ls`, `view_file`) and requires confirmation for sensitive operations in `ask` mode.
   - Integrated with ADK's `before_tool_callback`.
 
 ### 3. TUI Implementation (Foundation Ready)
-- [x] `adk_cli/tui.py`: Rich TUI built with **Textual**.
+- [x] `adk_coder/tui.py`: Rich TUI built with **Textual**.
   - Interactive chat interface with markdown rendering.
   - Supports initial query injection from the CLI.
 

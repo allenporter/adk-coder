@@ -9,7 +9,7 @@ from google.genai.errors import ClientError
 from google.adk.models.llm_request import LlmRequest
 from google.adk.models.llm_response import LlmResponse
 
-from adk_cli.status import status_manager
+from adk_coder.status import status_manager
 
 logger = logging.getLogger(__name__)
 

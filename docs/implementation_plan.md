@@ -1,6 +1,6 @@
-# adk-cli Architecture & Implementation Strategy
+# adk-coder Architecture & Implementation Strategy
 
-This document provides a high-level overview of the `adk-cli` architecture, derived from `gemini-cli`, and maps out the strategy for reproducing it using `google-adk`.
+This document provides a high-level overview of the `adk-coder` architecture, derived from `gemini-cli`, and maps out the strategy for reproducing it using `google-adk`.
 
 ## Modular Documentation
 To keep the project manageable, the specific implementation details are split across several documents:
@@ -15,14 +15,14 @@ To keep the project manageable, the specific implementation details are split ac
 
 `gemini-cli` is built as a clear separation between the UI layer and the core agentic logic.
 
-### 1. Core Logic (`adk_cli/`)
+### 1. Core Logic (`adk_coder/`)
 The "brain" of the application, responsible for:
 - **Orchestration**: `Runner` manages the session, history, and the agentic loop.
 - **Tool Execution**: `SecurityPlugin` manages the lifecycle of tool calls (Validation -> Approval -> Execution).
 - **Policy Engine**: `CustomPolicyEngine` decides if a tool call should be allowed, denied, or requires user confirmation.
-- **Tools**: `adk_cli/tools.py` provides essential filesystem tools (`read_file`, `write_file`, `ls`, `grep`) wrapped in `FunctionTool`.
+- **Tools**: `adk_coder/tools.py` provides essential filesystem tools (`read_file`, `write_file`, `ls`, `grep`) wrapped in `FunctionTool`.
 
-### 2. UI Layer (`adk_cli/tui.py`)
+### 2. UI Layer (`adk_coder/tui.py`)
 - **Textual TUI**: A rich terminal user interface built with the **Textual** framework, providing markdown rendering and interactive chat.
 
 ### 3. Extensibility
@@ -51,7 +51,7 @@ The "brain" of the application, responsible for:
 | `TUI` | Python **Textual** framework. |
 
 ### Essential Toolset
-#### [NEW] [tools.py](adk_cli/tools.py)
+#### [NEW] [tools.py](adk_coder/tools.py)
 Implementation of ADK tools for filesystem operations:
 - `ls`: List directory contents.
 - `read_file` (or `cat`): Read file content.
@@ -65,11 +65,11 @@ Implementation of ADK tools for filesystem operations:
 As of the completion of the Bootstrapping MVP, the following core components are operational and have provided key architectural insights:
 
 ### 1. Robust File Operations
-The `adk_cli/tools.py` module now includes a refined set of tools (`ls`, `cat`, `write_file`, `edit_file`, `bash`) that handle common pitfalls like large output truncation and exact-match safety for edits.
+The `adk_coder/tools.py` module now includes a refined set of tools (`ls`, `cat`, `write_file`, `edit_file`, `bash`) that handle common pitfalls like large output truncation and exact-match safety for edits.
 - **Insight**: Direct file editing is the most fragile operation. We've moved towards exact-match search/replace, but Phase 2 will focus on more advanced patching.
 
 ### 2. TUI & Streaming
-The Textual-based TUI (`adk_cli/tui.py`) successfully handles asynchronous streaming of agent responses while maintaining a responsive UI.
+The Textual-based TUI (`adk_coder/tui.py`) successfully handles asynchronous streaming of agent responses while maintaining a responsive UI.
 - **Insight**: Tool call visualization is critical for user trust. We now explicitly show `🛠️ Executing: ...` in the chat history.
 
 ### 3. Policy-Based Security
@@ -84,7 +84,7 @@ By combining `SqliteSessionService` with a project registry (`projects.json`), t
 
 ## Strategic Insights from Claude Code Analysis
 
-A review of the `claude-code` codebase and its plugin architecture suggests several high-impact features for `adk-cli`:
+A review of the `claude-code` codebase and its plugin architecture suggests several high-impact features for `adk-coder`:
 
 ### 1. Multi-Phase Orchestration
 Complex tasks should be broken down into discrete phases (Discovery -> Exploration -> Architecture -> Implementation -> Review). This reduces "hallucination" and ensures the agent has adequate context before writing code.
@@ -123,7 +123,7 @@ Choosing between augmenting the main agent (Skills) and delegating to a separate
 
 ## Code Integrity & Modification Strategy (Insights from Nano-Claw)
 
-While `google-adk` provides the base for file operations, `nano-claw` demonstrates advanced "Integrity-First" patterns that can be adopted to make `adk-cli` more resilient.
+While `google-adk` provides the base for file operations, `nano-claw` demonstrates advanced "Integrity-First" patterns that can be adopted to make `adk-coder` more resilient.
 
 ### 1. Structured Data Merging
 Rather than treating all files as blobs of text, use specialized handlers for structured configuration files.

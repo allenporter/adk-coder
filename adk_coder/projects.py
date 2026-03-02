@@ -1,4 +1,4 @@
-"""Project detection and Short ID mapping for adk-cli.
+"""Project detection and Short ID mapping for adk-coder.
 
 Maps workspace directories to unique, human-readable Short IDs to allow
 context-aware session persistence.
@@ -10,7 +10,7 @@ import logging
 from pathlib import Path
 from typing import Optional
 
-from adk_cli.settings import get_global_adk_dir
+from adk_coder.settings import get_global_adk_dir
 
 logger = logging.getLogger(__name__)
 

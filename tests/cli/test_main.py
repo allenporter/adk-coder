@@ -1,4 +1,4 @@
-"""Tests for adk_cli."""
+"""Tests for adk_coder."""
 
 
 def test_init() -> None:

@@ -25,15 +25,15 @@ from google.adk.runners import Runner
 from google.genai import types
 
 
-from adk_cli.confirmation import confirmation_manager
-from adk_cli.status import status_manager
-from adk_cli.models import ConfirmationResult
-from adk_cli.summarize import (
+from adk_coder.confirmation import confirmation_manager
+from adk_coder.status import status_manager
+from adk_coder.models import ConfirmationResult
+from adk_coder.summarize import (
     summarize_tool_call,
     summarize_tool_call_args,
     summarize_tool_result,
 )
-from adk_cli.constants import APP_NAME
+from adk_coder.constants import APP_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -998,7 +998,7 @@ class ChatScreen(Screen):
 
 
 class AdkTuiApp(App):
-    """The main TUI for adk-cli."""
+    """The main TUI for adk-coder."""
 
     BINDINGS = [Binding("ctrl+c", "quit", "Quit", show=False)]
 

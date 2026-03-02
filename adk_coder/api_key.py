@@ -1,4 +1,4 @@
-"""API key loading, saving, and environment file support for adk-cli.
+"""API key loading, saving, and environment file support for adk-coder.
 
 Priority order for API key resolution:
   1. GOOGLE_API_KEY environment variable
@@ -14,7 +14,7 @@ from pathlib import Path
 
 import dotenv
 
-from adk_cli.settings import get_global_adk_dir, load_settings, save_settings
+from adk_coder.settings import get_global_adk_dir, load_settings, save_settings
 
 _ENV_VARS = ("GOOGLE_API_KEY", "GEMINI_API_KEY")
 _SETTINGS_KEY = "api_key"

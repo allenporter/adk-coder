@@ -1,4 +1,4 @@
-"""Global settings storage for adk-cli.
+"""Global settings storage for adk-coder.
 
 Settings are persisted to ~/.adk/settings.json, mirroring the approach
 used by gemini-cli which stores settings in ~/.gemini/.
@@ -13,7 +13,7 @@ ADK_DIR = ".adk"
 
 
 def get_global_adk_dir() -> Path:
-    """Return the global adk-cli config directory (~/.adk/)."""
+    """Return the global adk-coder config directory (~/.adk/)."""
     home = Path(os.path.expanduser("~"))
     return home / ADK_DIR
 
@@ -68,7 +68,7 @@ def _load_file(path: Path) -> dict[str, Any]:
 def save_settings(settings: dict[str, Any]) -> None:
     """Persist settings to the global settings file (~/.adk/settings.json).
 
-    adk-cli CLI commands exclusively manage global settings.
+    adk-coder CLI commands exclusively manage global settings.
     Local overrides must be edited manually in the project directory.
     """
     path = get_global_settings_path()

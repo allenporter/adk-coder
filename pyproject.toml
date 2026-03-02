@@ -3,7 +3,7 @@ build-backend = "setuptools.build_meta"
 requires = ["setuptools>=77.0"]
 
 [project]
-name = "adk_cli"
+name = "adk_coder"
 version = "0.0.1"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
@@ -35,16 +35,16 @@ dev = [
 ]
 
 [project.scripts]
-adk = "adk_cli.main:main"
+adk-coder = "adk_coder.main:main"
 
 [project.urls]
-Source = "https://github.com/allenporter/adk_cli"
+Source = "https://github.com/allenporter/adk-coder"
 
 [tool.setuptools.packages.find]
-include = ["adk_cli*"]
+include = ["adk_coder*"]
 
 [tool.setuptools.package-data]
-"adk_cli.skills.builtin" = ["**/*"]
+"adk_coder.skills.builtin" = ["**/*"]
 
 
 

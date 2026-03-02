@@ -4,7 +4,7 @@ import psutil
 from pathlib import Path
 import logging
 
-from adk_cli.projects import get_global_adk_dir
+from adk_coder.projects import get_global_adk_dir
 
 logger = logging.getLogger(__name__)
 

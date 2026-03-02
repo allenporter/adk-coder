@@ -1,6 +1,6 @@
 import os
 import pytest
-from adk_cli.tools import ls, cat, write_file, edit_file, grep, read_many_files
+from adk_coder.tools import ls, cat, write_file, edit_file, grep, read_many_files
 
 
 @pytest.mark.asyncio

@@ -7,7 +7,7 @@
       "full_name": "Allen Porter",
       "email": "allen.porter@gmail.com",
       "github_username": "allenporter",
-      "project_name": "adk_cli",
+      "project_name": "adk_coder",
       "description": "Project short description.",
       "version": "0.0.1",
       "_template": "http://github.com/allenporter/cookiecutter-python"
