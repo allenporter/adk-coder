@@ -40,8 +40,8 @@ def test_cli_no_api_key_exits_with_instructions() -> None:
 def test_cli_chat_direct() -> None:
     runner = CliRunner()
     with (
-        patch("adk_coder.agent_factory.build_runner_or_exit") as mock_build,
-        patch("adk_coder.tui.AdkTuiApp") as mock_tui,
+        patch("adk_coder.main.build_runner_or_exit") as mock_build,
+        patch("adk_coder.main.AdkTuiApp") as mock_tui,
     ):
         mock_build.return_value = mock_build  # just needs to be truthy
         mock_instance = mock_tui.return_value
@@ -53,7 +53,7 @@ def test_cli_chat_direct() -> None:
 
 def test_cli_chat_print() -> None:
     runner = CliRunner()
-    with patch("adk_coder.agent_factory.build_runner_or_exit") as mock_build:
+    with patch("adk_coder.main.build_runner_or_exit") as mock_build:
         mock_runner = mock_build.return_value
         fake_event = Event(
             author="model",
@@ -74,8 +74,8 @@ def test_cli_chat_print() -> None:
 def test_cli_no_args_shows_tui() -> None:
     runner = CliRunner()
     with (
-        patch("adk_coder.agent_factory.build_runner_or_exit") as mock_build,
-        patch("adk_coder.tui.AdkTuiApp") as mock_tui,
+        patch("adk_coder.main.build_runner_or_exit") as mock_build,
+        patch("adk_coder.main.AdkTuiApp") as mock_tui,
     ):
         mock_build.return_value = mock_build
         mock_instance = mock_tui.return_value
@@ -87,9 +87,7 @@ def test_cli_no_args_shows_tui() -> None:
 
 def test_cli_sessions_list() -> None:
     runner = CliRunner()
-    with patch(
-        "google.adk.sessions.sqlite_session_service.SqliteSessionService"
-    ) as mock_service:
+    with patch("adk_coder.cli.sessions.SqliteSessionService") as mock_service:
         mock_instance = mock_service.return_value
         mock_instance.list_sessions = AsyncMock()
         mock_instance.list_sessions.return_value.sessions = []
@@ -101,9 +99,7 @@ def test_cli_sessions_list() -> None:
 
 def test_cli_sessions_gc_no_sessions() -> None:
     runner = CliRunner()
-    with patch(
-        "google.adk.sessions.sqlite_session_service.SqliteSessionService"
-    ) as mock_service:
+    with patch("adk_coder.cli.sessions.SqliteSessionService") as mock_service:
         mock_instance = mock_service.return_value
         mock_instance.list_sessions = AsyncMock()
         mock_instance.list_sessions.return_value.sessions = []
@@ -115,9 +111,7 @@ def test_cli_sessions_gc_no_sessions() -> None:
 
 def test_cli_sessions_gc_old_sessions() -> None:
     runner = CliRunner()
-    with patch(
-        "google.adk.sessions.sqlite_session_service.SqliteSessionService"
-    ) as mock_service:
+    with patch("adk_coder.cli.sessions.SqliteSessionService") as mock_service:
         mock_instance = mock_service.return_value
         mock_instance.list_sessions = AsyncMock()
         mock_instance.delete_session = AsyncMock()

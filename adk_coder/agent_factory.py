@@ -6,10 +6,22 @@ from typing import Any, Optional
 
 import click
 
+from google.adk.agents.llm_agent import LlmAgent
+from google.adk.apps.app import App, EventsCompactionConfig
+from google.adk.planners import BuiltInPlanner
+from google.adk.runners import Runner
+from google.adk.sessions.sqlite_session_service import SqliteSessionService
+from google.adk.tools.skill_toolset import SkillToolset
+from google.genai import types
+
 from adk_coder.api_key import load_api_key, load_env_file
-from adk_coder.projects import find_project_root, get_session_db_path
-from adk_coder.settings import load_settings
 from adk_coder.constants import APP_NAME, DEFAULT_MODEL
+from adk_coder.policy import CustomPolicyEngine, PermissionMode, SecurityPlugin
+from adk_coder.projects import find_project_root, get_session_db_path
+from adk_coder.retry_gemini import AdkRetryGemini
+from adk_coder.settings import load_settings
+from adk_coder.skills import discover_skills
+from adk_coder.tools import get_essential_tools
 
 logger = logging.getLogger(__name__)
 
@@ -61,13 +73,6 @@ def build_adk_agent(
         workspace_path: Optional path to the workspace root. If not provided,
             project root is discovered from ``Path.cwd()``.
     """
-    from adk_coder.skills import discover_skills
-    from adk_coder.tools import get_essential_tools
-    from adk_coder.retry_gemini import AdkRetryGemini
-    from google.adk.agents.llm_agent import LlmAgent
-    from google.adk.tools.skill_toolset import SkillToolset
-    from google.genai import types
-
     # Ensure agent_name is a valid identifier (alphanumeric and underscores only)
     agent_name = agent_name.replace("-", "_")
 
@@ -114,8 +119,6 @@ def build_adk_agent(
             tools.append(SkillToolset(skills))
 
     # Construct the planner with thinking config
-    from google.adk.planners import BuiltInPlanner
-
     planner = BuiltInPlanner(
         thinking_config=types.ThinkingConfig(
             include_thoughts=True,
@@ -147,12 +150,6 @@ def build_runner(
         workspace_path: Optional path to the workspace root. Forwarded to
             ``build_adk_agent()`` for project root and skill discovery.
     """
-    # Defer loading of heavy SDK libraries
-    from adk_coder.policy import CustomPolicyEngine, SecurityPlugin, PermissionMode
-    from google.adk.apps.app import App, EventsCompactionConfig
-    from google.adk.runners import Runner
-    from google.adk.sessions.sqlite_session_service import SqliteSessionService
-
     agent = build_adk_agent(model, workspace_path=workspace_path)
     mode = PermissionMode(permission_mode)
 

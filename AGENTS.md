@@ -21,6 +21,7 @@ This document provides context and guidelines for agents working on the `adk-cod
 ## Coding Standards
 - **Markup**: When sending text to the TUI that contains user or tool-generated content, ALWAYS use `rich.markup.escape()` to prevent `MarkupError`.
 - **Typing**: Use static type hints throughout the project.
+- **Imports**: Prefer top-level imports. The one exception is `tools.py` importing `build_adk_agent` from `agent_factory.py` — this must remain deferred to break a circular dependency (`tools ↔ agent_factory`).
 - **Styling**: Maintain the Gemini-inspired aesthetic:
   - Agent prefix: `✦`
   - Thoughts: Italicized with a left border.
@@ -31,3 +32,6 @@ This document provides context and guidelines for agents working on the `adk-cod
 - **Verification**: Always run `script/lint` and `script/test` after modifications to ensure no regressions were introduced.
 - **Ambiguity Resolution**: If a task or codebase state is ambiguous during the Discovery phase, pause and ask for clarification rather than making assumptions.
 - **Structured Edits**: Use specialized tools (like `edit_file` with exact matches) rather than overwriting whole files to minimize drift.
+
+## Testing Conventions
+- **Patch where it's used**: Always `patch("consumer_module.Name")`, not `patch("source_module.Name")`. For example, to mock `SqliteSessionService` used in `cli/sessions.py`, patch `adk_coder.cli.sessions.SqliteSessionService` — not `google.adk.sessions.sqlite_session_service.SqliteSessionService`. This ensures mocks work regardless of whether the consumer uses top-level or deferred imports.

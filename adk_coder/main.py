@@ -5,12 +5,21 @@ import uuid
 from typing import Optional, List, Any, Dict
 import logging
 
+from google.adk.sessions.sqlite_session_service import SqliteSessionService
+from google.genai import types
+from rich.console import Console
+from rich.markdown import Markdown
+from rich.panel import Panel
+from rich.syntax import Syntax
+
+from adk_coder.agent_factory import build_runner_or_exit
+from adk_coder.cli.config import config
+from adk_coder.cli.sessions import sessions
+from adk_coder.constants import APP_NAME
 from adk_coder.projects import find_project_root, get_project_id, get_session_db_path
 from adk_coder.status import is_session_locked, SessionLock
 from adk_coder.summarize import summarize_tool_call, summarize_tool_result
-from adk_coder.cli.sessions import sessions
-from adk_coder.cli.config import config
-from adk_coder.constants import APP_NAME
+from adk_coder.tui import AdkTuiApp
 
 logger = logging.getLogger(__name__)
 
@@ -67,8 +76,6 @@ async def _get_project_context(
         return project_id, resume_session_id
 
     if not new_session:
-        from google.adk.sessions.sqlite_session_service import SqliteSessionService
-
         db_path = str(get_session_db_path())
         service = SqliteSessionService(db_path=db_path)
         try:
@@ -161,9 +168,6 @@ def cli(
 @click.pass_context
 def chat(ctx: click.Context, query: List[str], print_mode: bool) -> None:
     """Execute a task or start a conversation."""
-    from google.genai import types
-    from adk_coder.tui import AdkTuiApp
-    from adk_coder.agent_factory import build_runner_or_exit
 
     query_str = " ".join(query)
     is_print = print_mode
@@ -179,11 +183,6 @@ def chat(ctx: click.Context, query: List[str], print_mode: bool) -> None:
     project_id, session_id = asyncio.run(_get_project_context(new_sess, resume_id))
 
     if is_print:
-        from rich.console import Console
-        from rich.markdown import Markdown
-        from rich.panel import Panel
-        from rich.syntax import Syntax
-
         console = Console()
         runner = build_runner_or_exit(ctx)
         with SessionLock(session_id):

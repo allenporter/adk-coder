@@ -1,8 +1,11 @@
 import click
 import asyncio
 from datetime import datetime
-from adk_coder.projects import find_project_root, get_project_id, get_session_db_path
+
+from google.adk.sessions.sqlite_session_service import SqliteSessionService
+
 from adk_coder.constants import APP_NAME
+from adk_coder.projects import find_project_root, get_project_id, get_session_db_path
 
 
 @click.group()
@@ -15,8 +18,6 @@ def sessions() -> None:
 @click.option("--all", is_flag=True, help="List sessions across all projects.")
 def list_sessions_cmd(all: bool) -> None:
     """List recent sessions."""
-    from google.adk.sessions.sqlite_session_service import SqliteSessionService
-
     db_path = str(get_session_db_path())
     service = SqliteSessionService(db_path=db_path)
 
@@ -51,8 +52,6 @@ def list_sessions_cmd(all: bool) -> None:
 @click.argument("session_id")
 def delete_session_cmd(session_id: str) -> None:
     """Delete a specific session."""
-    from google.adk.sessions.sqlite_session_service import SqliteSessionService
-
     db_path = str(get_session_db_path())
     service = SqliteSessionService(db_path=db_path)
 
@@ -75,8 +74,6 @@ def delete_session_cmd(session_id: str) -> None:
 @click.option("--yes", "-y", is_flag=True, help="Skip confirmation prompt.")
 def gc_sessions_cmd(days: int, yes: bool) -> None:
     """Garbage collect old sessions."""
-    from google.adk.sessions.sqlite_session_service import SqliteSessionService
-
     db_path = str(get_session_db_path())
     service = SqliteSessionService(db_path=db_path)
 
