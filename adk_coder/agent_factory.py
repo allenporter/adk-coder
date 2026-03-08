@@ -11,6 +11,8 @@ from google.adk.apps.app import App, EventsCompactionConfig
 from google.adk.planners import BuiltInPlanner
 from google.adk.runners import Runner
 from google.adk.sessions.sqlite_session_service import SqliteSessionService
+from google.adk.tools.base_tool import BaseTool
+from google.adk.tools.base_toolset import BaseToolset
 from google.adk.tools.skill_toolset import SkillToolset
 from google.genai import types
 
@@ -22,6 +24,7 @@ from adk_coder.retry_gemini import AdkRetryGemini
 from adk_coder.settings import load_settings
 from adk_coder.skills import discover_skills
 from adk_coder.tools import get_essential_tools
+from adk_coder.mcp import get_mcp_toolsets
 
 logger = logging.getLogger(__name__)
 
@@ -66,12 +69,20 @@ def build_adk_agent(
     include_skills: bool = True,
     agent_name: str = "adk_coder_agent",
     workspace_path: Path | None = None,
-) -> Any:
+    extra_tools: list[BaseTool | BaseToolset] | None = None,
+) -> LlmAgent:
     """Builds and returns an LlmAgent for adk-coder.
 
     Args:
+        model: Optional model name. If not provided, loads from settings or uses default.
+        instruction: Optional system instruction. If not provided, uses `SUPERVISOR_INSTRUCTION`.
+        tool_names: Optional list of tool names to include. Filters built-in tools.
+        include_skills: Whether to discover and include skills from the workspace.
+        agent_name: Name of the agent.
         workspace_path: Optional path to the workspace root. If not provided,
             project root is discovered from ``Path.cwd()``.
+        extra_tools: Additional tools to provide to the agent.
+            This can include manually instantiated ``McpToolset`` objects.
     """
     # Ensure agent_name is a valid identifier (alphanumeric and underscores only)
     agent_name = agent_name.replace("-", "_")
@@ -118,6 +129,13 @@ def build_adk_agent(
         if skills:
             tools.append(SkillToolset(skills))
 
+    # Load MCP servers from config (checking both mcpServers and legacy mcp_servers)
+    settings = load_settings(project_root)
+    tools.extend(get_mcp_toolsets(settings))
+
+    if extra_tools:
+        tools.extend(extra_tools)
+
     # Construct the planner with thinking config
     planner = BuiltInPlanner(
         thinking_config=types.ThinkingConfig(
@@ -140,7 +158,8 @@ def build_runner(
     model: str | None = None,
     permission_mode: str = "ask",
     workspace_path: Path | None = None,
-) -> Any:
+    extra_tools: list[BaseTool | BaseToolset] | None = None,
+) -> Runner:
     """Build a fully-configured Runner (agent + sessions + compaction).
 
     This is the library-friendly entry point with no CLI dependencies
@@ -150,7 +169,9 @@ def build_runner(
         workspace_path: Optional path to the workspace root. Forwarded to
             ``build_adk_agent()`` for project root and skill discovery.
     """
-    agent = build_adk_agent(model, workspace_path=workspace_path)
+    agent = build_adk_agent(
+        model, workspace_path=workspace_path, extra_tools=extra_tools
+    )
     mode = PermissionMode(permission_mode)
 
     policy_engine = CustomPolicyEngine(mode=mode)

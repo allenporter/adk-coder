@@ -20,6 +20,12 @@ from adk_coder.projects import find_project_root, get_project_id, get_session_db
 from adk_coder.status import is_session_locked, SessionLock
 from adk_coder.summarize import summarize_tool_call, summarize_tool_result
 from adk_coder.tui import AdkTuiApp
+from adk_coder.settings import (
+    load_settings,
+    load_global_settings,
+    save_settings,
+)
+from adk_coder.mcp import MCP_SERVERS_KEY, MCP_SERVERS_LEGACY_KEY
 
 logger = logging.getLogger(__name__)
 
@@ -311,10 +317,88 @@ def agents() -> None:
     click.echo("Listing agents and skills...")
 
 
-@cli.command()
+@cli.group()
 def mcp() -> None:
     """Manages Model Context Protocol server connections."""
-    click.echo("Managing MCP connections...")
+    pass
+
+
+@mcp.command(name="list")
+def list_mcp_cmd() -> None:
+    """List configured MCP servers."""
+    settings = load_settings(find_project_root())
+    mcp_servers = settings.get(MCP_SERVERS_KEY) or settings.get(
+        MCP_SERVERS_LEGACY_KEY, {}
+    )
+    if not mcp_servers:
+        click.echo("No MCP servers configured.")
+        return
+
+    click.echo("Configured MCP Servers:")
+    for name, cfg in mcp_servers.items():
+        mcp_type = cfg.get("type", "stdio")
+        if mcp_type == "http" or "url" in cfg:
+            conn = cfg.get("url", "???")
+            mcp_type = "http"
+        else:
+            cmd = cfg.get("command", "???")
+            args = " ".join(cfg.get("args", []))
+            conn = f"{cmd} {args}"
+            mcp_type = "stdio"
+
+        click.echo(f"  - {name} ({mcp_type}): {conn}")
+
+
+@mcp.command(name="add")
+@click.argument("name")
+@click.argument("command_or_url")
+@click.argument("args", nargs=-1)
+def add_mcp_cmd(name: str, command_or_url: str, args: tuple[str, ...]) -> None:
+    """Add a new global MCP server connection.
+
+    Example (Local):
+      adk-coder mcp add sqlite uvx mcp-server-sqlite --db-path ./my.db
+
+    Example (Remote):
+      adk-coder mcp add my-remote http://localhost:8000/sse
+    """
+    settings = load_global_settings()
+    mcp_servers = settings.setdefault(MCP_SERVERS_KEY, {})
+
+    if command_or_url.startswith(("http://", "https://")):
+        mcp_servers[name] = {"type": "http", "url": command_or_url}
+        msg = f"Successfully added remote MCP server: {name} ({command_or_url})"
+    else:
+        mcp_servers[name] = {
+            "type": "stdio",
+            "command": command_or_url,
+            "args": list(args),
+        }
+        msg = f"Successfully added local MCP server: {name}"
+
+    save_settings(settings)
+    click.echo(msg)
+
+
+@mcp.command(name="remove")
+@click.argument("name")
+def remove_mcp_cmd(name: str) -> None:
+    """Remove an MCP server connection."""
+    settings = load_global_settings()
+    removed = False
+
+    # Check both new and legacy keys
+    for key in [MCP_SERVERS_KEY, MCP_SERVERS_LEGACY_KEY]:
+        mcp_servers = settings.get(key, {})
+        if name in mcp_servers:
+            del mcp_servers[name]
+            removed = True
+
+    if removed:
+        save_settings(settings)
+        click.echo(f"Successfully removed MCP server: {name}")
+    else:
+        click.echo(f"Error: MCP server '{name}' not found in global settings.")
 
 
 cli.add_command(sessions)

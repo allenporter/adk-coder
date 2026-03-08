@@ -69,7 +69,9 @@ def test_build_runner_passes_model_through(
     """build_runner(model=...) should forward the model to build_adk_agent()."""
     build_runner(model="gemini-2.0-flash")
 
-    mock_build_agent.assert_called_once_with("gemini-2.0-flash", workspace_path=None)
+    mock_build_agent.assert_called_once_with(
+        "gemini-2.0-flash", workspace_path=None, extra_tools=None
+    )
 
 
 @patch("adk_coder.agent_factory.get_session_db_path", return_value="/tmp/test.db")
@@ -125,7 +127,7 @@ def test_build_runner_passes_workspace_path(
 
     build_runner(workspace_path=ws)
 
-    mock_build_agent.assert_called_once_with(None, workspace_path=ws)
+    mock_build_agent.assert_called_once_with(None, workspace_path=ws, extra_tools=None)
 
 
 @patch("adk_coder.agent_factory.LlmAgent")

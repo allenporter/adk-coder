@@ -23,9 +23,10 @@ def test_cli_agents() -> None:
 
 def test_cli_mcp() -> None:
     runner = CliRunner()
-    result = runner.invoke(cli, ["mcp"])
+    with patch("adk_coder.main.load_settings", return_value={}):
+        result = runner.invoke(cli, ["mcp", "list"])
     assert result.exit_code == 0
-    assert "Managing MCP connections..." in result.output
+    assert "No MCP servers configured." in result.output
 
 
 def test_cli_no_api_key_exits_with_instructions() -> None:
