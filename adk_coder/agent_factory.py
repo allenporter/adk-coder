@@ -53,8 +53,14 @@ def build_adk_agent(
     tool_names: list[str] | None = None,
     include_skills: bool = True,
     agent_name: str = "adk_coder_agent",
+    workspace_path: Path | None = None,
 ) -> Any:
-    """Builds and returns an LlmAgent for adk-coder."""
+    """Builds and returns an LlmAgent for adk-coder.
+
+    Args:
+        workspace_path: Optional path to the workspace root. If not provided,
+            project root is discovered from ``Path.cwd()``.
+    """
     from adk_coder.skills import discover_skills
     from adk_coder.tools import get_essential_tools
     from adk_coder.retry_gemini import AdkRetryGemini
@@ -65,7 +71,7 @@ def build_adk_agent(
     # Ensure agent_name is a valid identifier (alphanumeric and underscores only)
     agent_name = agent_name.replace("-", "_")
 
-    project_root = find_project_root()
+    project_root = find_project_root(workspace_path)
 
     # Defer loading of model settings
     if model is None:
@@ -103,7 +109,7 @@ def build_adk_agent(
         tools = all_essential_tools
 
     if include_skills:
-        skills = discover_skills(Path.cwd())
+        skills = discover_skills(workspace_path or Path.cwd())
         if skills:
             tools.append(SkillToolset(skills))
 
@@ -127,36 +133,30 @@ def build_adk_agent(
     )
 
 
-def build_runner_or_exit(ctx: click.Context, model: str | None = None) -> Any:
-    """Resolve the API key and build a Runner, or print instructions and exit."""
+def build_runner(
+    model: str | None = None,
+    permission_mode: str = "ask",
+    workspace_path: Path | None = None,
+) -> Any:
+    """Build a fully-configured Runner (agent + sessions + compaction).
+
+    This is the library-friendly entry point with no CLI dependencies
+    (click, sys.exit). adk-claw and other consumers should use this.
+
+    Args:
+        workspace_path: Optional path to the workspace root. Forwarded to
+            ``build_adk_agent()`` for project root and skill discovery.
+    """
     # Defer loading of heavy SDK libraries
     from adk_coder.policy import CustomPolicyEngine, SecurityPlugin, PermissionMode
     from google.adk.apps.app import App, EventsCompactionConfig
     from google.adk.runners import Runner
     from google.adk.sessions.sqlite_session_service import SqliteSessionService
 
-    api_key = _resolve_api_key()
-    if not api_key:
-        click.echo(_NO_KEY_MESSAGE, err=True)
-        sys.exit(1)
-    # Set env var so google-genai client picks it up at init time
-    os.environ["GOOGLE_API_KEY"] = api_key
-    os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "FALSE")
+    agent = build_adk_agent(model, workspace_path=workspace_path)
+    mode = PermissionMode(permission_mode)
 
-    # Create the agent lazily after api key setup
-    agent = build_adk_agent(model)
-
-    settings = load_settings(find_project_root())
-
-    # Navigate to get parent context params if needed
-    p_params = ctx.parent.params if ctx.parent else {}
-    mode_str = p_params.get("permission_mode")
-    if mode_str is None:
-        mode_str = settings.get("permission_mode", "ask")
-
-    permission_mode = PermissionMode(mode_str)
-
-    policy_engine = CustomPolicyEngine(mode=permission_mode)
+    policy_engine = CustomPolicyEngine(mode=mode)
     security_plugin = SecurityPlugin(policy_engine=policy_engine)
 
     # Configure session compaction to manage context growth.
@@ -182,3 +182,23 @@ def build_runner_or_exit(ctx: click.Context, model: str | None = None) -> Any:
         session_service=session_service,
         auto_create_session=True,
     )
+
+
+def build_runner_or_exit(ctx: click.Context, model: str | None = None) -> Any:
+    """CLI wrapper — resolves API key or exits, then delegates to build_runner()."""
+    api_key = _resolve_api_key()
+    if not api_key:
+        click.echo(_NO_KEY_MESSAGE, err=True)
+        sys.exit(1)
+    # Set env var so google-genai client picks it up at init time
+    os.environ["GOOGLE_API_KEY"] = api_key
+    os.environ.setdefault("GOOGLE_GENAI_USE_VERTEXAI", "FALSE")
+
+    # Resolve permission mode from CLI context, then fall back to settings
+    p_params = ctx.parent.params if ctx.parent else {}
+    mode = p_params.get("permission_mode")
+    if mode is None:
+        settings = load_settings(find_project_root())
+        mode = settings.get("permission_mode", "ask")
+
+    return build_runner(model=model, permission_mode=mode)
