@@ -5,11 +5,12 @@ from adk_coder.policy import (
     PermissionMode,
     PolicyOutcome,
 )
+from adk_coder.models import ConfirmationResult
 from google.adk.tools.base_tool import BaseTool
 from google.adk.tools.tool_context import ToolContext
 from google.adk.events.event_actions import EventActions
 from google.adk.tools.tool_confirmation import ToolConfirmation
-from unittest.mock import MagicMock
+from unittest.mock import AsyncMock, MagicMock, patch
 
 
 @pytest.fixture
@@ -56,9 +57,14 @@ async def test_policy_ask_mode_sensitive(
     engine = CustomPolicyEngine(mode=PermissionMode.ASK)
     plugin = SecurityPlugin(engine)
 
-    result = await plugin.before_tool_callback(
-        tool=mock_tool, tool_args={}, tool_context=mock_tool_context
-    )
+    with patch(
+        "adk_coder.policy.confirmation_manager.request_confirmation",
+        new_callable=AsyncMock,
+        return_value=ConfirmationResult.DENIED,
+    ):
+        result = await plugin.before_tool_callback(
+            tool=mock_tool, tool_args={}, tool_context=mock_tool_context
+        )
 
     assert result is not None
     assert "User denied execution" in result["error"]
@@ -111,12 +117,17 @@ async def test_policy_safe_bash_command(mock_tool_context: MagicMock) -> None:
     )
     assert result is None
 
-    # Test an unsafe command
-    result = await plugin.before_tool_callback(
-        tool=mock_bash_tool,
-        tool_args={"command": "rm -rf /"},
-        tool_context=mock_tool_context,
-    )
+    # Test an unsafe command (needs confirmation mock since it triggers prompt)
+    with patch(
+        "adk_coder.policy.confirmation_manager.request_confirmation",
+        new_callable=AsyncMock,
+        return_value=ConfirmationResult.DENIED,
+    ):
+        result = await plugin.before_tool_callback(
+            tool=mock_bash_tool,
+            tool_args={"command": "rm -rf /abcdefg"},
+            tool_context=mock_tool_context,
+        )
     assert result is not None
     assert "User denied execution" in result["error"]
 

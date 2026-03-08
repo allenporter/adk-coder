@@ -23,13 +23,21 @@ Future Guidance:
 import os
 import subprocess
 import asyncio
-from typing import Any, Callable, Optional, Dict
+from pathlib import Path
+from typing import Any, Callable, Dict, Optional
 
-from adk_coder.status import status_manager
+import yaml
+
 from adk_coder.models import ToolPolicy, ToolMetadata
+from adk_coder.policy import SAFE_BASH_COMMANDS
+from adk_coder.projects import find_project_root
+from adk_coder.status import status_manager
 from google.adk.tools.base_tool import BaseTool
 from google.adk.tools.base_toolset import BaseToolset
 from google.adk.tools.function_tool import FunctionTool
+from google.adk.runners import Runner
+from google.adk.sessions.in_memory_session_service import InMemorySessionService
+from google.genai import types
 
 
 def tool_metadata(
@@ -286,8 +294,6 @@ def _is_safe_bash(args: Dict[str, Any]) -> bool:
     `CustomPolicyEngine.allow_for_session` and `_is_session_allowed`
     in `adk_coder/policy.py`.
     """
-    from adk_coder.policy import SAFE_BASH_COMMANDS
-
     cmd = args.get("command", "").strip()
     return cmd in SAFE_BASH_COMMANDS
 
@@ -337,9 +343,6 @@ async def bash(command: str, cwd: str = ".") -> str:
 
 def _get_agent_metadata(agent_name: str) -> dict[str, Any]:
     """Helper to load a specialized agent metadata from its Markdown file."""
-    from pathlib import Path
-    import yaml
-    from adk_coder.projects import find_project_root
 
     project_root = find_project_root()
 
@@ -383,10 +386,7 @@ async def _run_subagent_task(
     prompt: str, agent_name: str = "adk_subagent", fallback_instruction: str = ""
 ) -> str:
     """Internal helper to run a sub-agent with a specific instruction and toolset."""
-    from google.adk.runners import Runner
-    from google.adk.sessions.in_memory_session_service import InMemorySessionService
-    from google.genai import types
-    from adk_coder.agent_factory import build_adk_agent
+    from adk_coder.agent_factory import build_adk_agent  # deferred: circular import
 
     # Load metadata from Markdown if available
     metadata = _get_agent_metadata(agent_name)
