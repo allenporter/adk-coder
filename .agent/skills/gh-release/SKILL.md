@@ -1,6 +1,6 @@
 ---
 name: gh-release
-description: Automates version bumping in pyproject.toml and creating GitHub releases. Use when releasing a new version of a project.
+description: Automates version bumping in pyproject.toml and creating GitHub releases. Use when releasing a new version of the project.
 ---
 
 # GitHub Release Skill
