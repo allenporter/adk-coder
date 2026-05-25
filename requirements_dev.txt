@@ -1,5 +1,5 @@
 -e .
-coverage==7.13.4
+coverage==7.14.0
 ty==0.0.18
 pdoc==15.0.4
 pip==24.3.1
