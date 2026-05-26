@@ -55,3 +55,6 @@ filterwarnings = [
     "ignore::DeprecationWarning:google.adk.runners.*",
     "ignore::pytest.PytestUnhandledThreadExceptionWarning",
 ]
+
+[tool.ty.src]
+exclude = ["tests", "examples"]
