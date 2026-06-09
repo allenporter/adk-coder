@@ -79,18 +79,26 @@ def _load_skill_from_content(content: str, source: str) -> Optional[Skill]:
             "Normalized skill name '%s' to '%s' from %s", name, normalized_name, source
         )
 
-    frontmatter = Frontmatter(
-        name=normalized_name,
-        description=str(description),
-        license=frontmatter_data.get("license"),
-        compatibility=frontmatter_data.get("compatibility"),
-        allowed_tools=frontmatter_data.get("allowed_tools"),
-        metadata={
-            k: str(v)
-            for k, v in frontmatter_data.items()
-            if k
-            not in {"name", "description", "license", "compatibility", "allowed_tools"}
-        },
+    frontmatter = Frontmatter.model_validate(
+        {
+            "name": normalized_name,
+            "description": str(description),
+            "license": frontmatter_data.get("license"),
+            "compatibility": frontmatter_data.get("compatibility"),
+            "allowed_tools": frontmatter_data.get("allowed_tools"),
+            "metadata": {
+                k: str(v)
+                for k, v in frontmatter_data.items()
+                if k
+                not in {
+                    "name",
+                    "description",
+                    "license",
+                    "compatibility",
+                    "allowed_tools",
+                }
+            },
+        }
     )
 
     return Skill(
