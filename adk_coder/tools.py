@@ -415,7 +415,7 @@ async def _run_subagent_task(
     status_manager.update(f"🚀 Starting [bold]{agent_name}[/bold]...")
 
     try:
-        report = []
+        report: list[str] = []
         async for event in runner.run_async(
             user_id="subagent", session_id="subsession", new_message=content
         ):
@@ -438,7 +438,9 @@ async def _run_subagent_task(
                 )
 
             if event.is_final_response() and event.content and event.content.parts:
-                report.append(event.content.parts[0].text)
+                text = event.content.parts[0].text
+                if text is not None:
+                    report.append(text)
 
         status_manager.update(f"✅ [bold]{agent_name}[/bold] complete.")
         return "\n".join(report) if report else "Subagent failed to return a report."
