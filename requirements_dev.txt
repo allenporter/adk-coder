@@ -9,7 +9,7 @@ pytest==9.1.1
 ruff==0.15.22
 
 # Project dependencies
-google-adk==2.4.0
+google-adk==2.5.0
 click>=8.1.7
 rich>=13.7.0
 textual>=0.47.1
