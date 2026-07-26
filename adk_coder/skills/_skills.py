@@ -200,7 +200,9 @@ def discover_skills(
     if include_builtin:
         try:
             builtin_skills_path = importlib.resources.files("adk_coder.skills.builtin")
-            for skill_folder_path in sorted(builtin_skills_path.iterdir()):
+            for skill_folder_path in sorted(
+                builtin_skills_path.iterdir(), key=lambda p: p.name
+            ):
                 if not skill_folder_path.is_dir():
                     continue
                 skill_md_path = skill_folder_path / "SKILL.md"
