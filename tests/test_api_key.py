@@ -1,5 +1,6 @@
 """Tests for adk_coder.api_key module."""
 
+import json
 import os
 import pytest
 from pathlib import Path
@@ -64,7 +65,6 @@ def test_load_api_key_google_takes_precedence_over_gemini(
 def test_load_api_key_from_settings_when_no_env(tmp_path: Path) -> None:
     settings_path = tmp_path / ".adk" / "settings.json"
     settings_path.parent.mkdir(parents=True)
-    import json
 
     settings_path.write_text(json.dumps({"api_key": "stored-key-999"}))
 

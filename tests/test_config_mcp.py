@@ -1,7 +1,8 @@
 import asyncio
+import json
+import logging
 import os
 import sys
-import json
 from pathlib import Path
 
 # Add project root to sys.path
@@ -34,8 +35,6 @@ async def main():
     original_settings = None
     if settings_path.exists():
         original_settings = settings_path.read_text()
-
-    import logging
 
     logging.basicConfig(level=logging.DEBUG)
 

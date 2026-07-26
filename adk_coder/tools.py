@@ -386,7 +386,9 @@ async def _run_subagent_task(
     prompt: str, agent_name: str = "adk_subagent", fallback_instruction: str = ""
 ) -> str:
     """Internal helper to run a sub-agent with a specific instruction and toolset."""
-    from adk_coder.agent_factory import build_adk_agent  # deferred: circular import
+    from adk_coder.agent_factory import (  # noqa: PLC0415
+        build_adk_agent,  # deferred: circular import
+    )
 
     # Load metadata from Markdown if available
     metadata = _get_agent_metadata(agent_name)
