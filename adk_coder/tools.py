@@ -51,14 +51,10 @@ def tool_metadata(
     """
 
     def decorator(func: Callable):
-        setattr(
-            func,
-            "_adk_tool_metadata",
-            ToolMetadata(
-                policy=policy,
-                summary_template=summary_template,
-                conditional_check=conditional_check,
-            ),
+        func._adk_tool_metadata = ToolMetadata(
+            policy=policy,
+            summary_template=summary_template,
+            conditional_check=conditional_check,
         )
         return func
 
