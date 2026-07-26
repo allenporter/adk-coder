@@ -1,14 +1,15 @@
-from enum import Enum
 from dataclasses import dataclass
-from typing import Any, Optional, Dict
-from rich.text import Text
+from enum import Enum
+from typing import Any
+
 from google.adk.plugins.base_plugin import BasePlugin
 from google.adk.tools.base_tool import BaseTool
 from google.adk.tools.tool_context import ToolContext
+from rich.text import Text
 
 from adk_coder.confirmation import confirmation_manager
+from adk_coder.models import ConfirmationResult, ToolPolicy
 from adk_coder.summarize import summarize_tool_call
-from adk_coder.models import ToolPolicy, ConfirmationResult
 
 # Tools that are considered safe and don't require confirmation in 'ask' mode
 # Deprecated: use @tool_metadata(ToolPolicy.READ_ONLY, ...) instead
@@ -71,8 +72,8 @@ class BasePolicyEngine:
     async def evaluate(
         self,
         tool_name: str,
-        tool_args: Dict[str, Any],
-        tool: Optional[BaseTool] = None,
+        tool_args: dict[str, Any],
+        tool: BaseTool | None = None,
     ) -> PolicyCheckResult:
         return PolicyCheckResult(outcome=PolicyOutcome.ALLOW, reason="Default allow")
 
@@ -85,17 +86,17 @@ class CustomPolicyEngine(BasePolicyEngine):
 
     def __init__(self, mode: PermissionMode = PermissionMode.ASK):
         self.mode = mode
-        self._session_permissions: Dict[str, set] = {}
+        self._session_permissions: dict[str, set] = {}
 
     def _format_reason(
-        self, prefix: str, tool_name: str, tool_args: Dict[str, Any]
+        self, prefix: str, tool_name: str, tool_args: dict[str, Any]
     ) -> str:
         # The reason is shown in a Label, which doesn't support Rich markup.
         # We should use the summary but without the markup tags.
         summary = summarize_tool_call(tool_name, tool_args)
         return f"{prefix}: {Text.from_markup(summary).plain}"
 
-    def allow_for_session(self, tool_name: str, tool_args: Dict[str, Any]):
+    def allow_for_session(self, tool_name: str, tool_args: dict[str, Any]):
         """
         Grant session-wide permission for a tool with optional granular arguments.
 
@@ -121,7 +122,7 @@ class CustomPolicyEngine(BasePolicyEngine):
             # Generic 'allow all for this tool'
             self._session_permissions[tool_name].add("*")
 
-    def _is_session_allowed(self, tool_name: str, tool_args: Dict[str, Any]) -> bool:
+    def _is_session_allowed(self, tool_name: str, tool_args: dict[str, Any]) -> bool:
         """
         Check if a tool call is already allowed for this session.
 
@@ -147,7 +148,7 @@ class CustomPolicyEngine(BasePolicyEngine):
         return False
 
     async def evaluate(
-        self, tool_name: str, tool_args: Dict[str, Any], tool: Optional[BaseTool] = None
+        self, tool_name: str, tool_args: dict[str, Any], tool: BaseTool | None = None
     ) -> PolicyCheckResult:
         if self.mode == PermissionMode.AUTO:
             return PolicyCheckResult(
@@ -215,8 +216,8 @@ class SecurityPlugin(BasePlugin):
         self.policy_engine = policy_engine
 
     async def before_tool_callback(
-        self, *, tool: BaseTool, tool_args: Dict[str, Any], tool_context: ToolContext
-    ) -> Optional[Dict[str, Any]]:
+        self, *, tool: BaseTool, tool_args: dict[str, Any], tool_context: ToolContext
+    ) -> dict[str, Any] | None:
         """
         Intercepts tool calls and evaluates them against the policy engine.
         """

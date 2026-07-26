@@ -1,7 +1,7 @@
-import click
 import asyncio
 from datetime import datetime
 
+import click
 from google.adk.sessions.sqlite_session_service import SqliteSessionService
 
 from adk_coder.constants import APP_NAME
@@ -11,7 +11,6 @@ from adk_coder.projects import find_project_root, get_project_id, get_session_db
 @click.group()
 def sessions() -> None:
     """Manage agent sessions."""
-    pass
 
 
 @sessions.command(name="list")

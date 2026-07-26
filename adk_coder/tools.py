@@ -20,30 +20,31 @@ Future Guidance:
 - Prefer high-level semantic tools over low-level primitives when possible.
 """
 
+import asyncio
 import os
 import subprocess
-import asyncio
+from collections.abc import Callable
 from pathlib import Path
-from typing import Any, Callable, Dict, Optional
+from typing import Any
 
 import yaml
-
-from adk_coder.models import ToolPolicy, ToolMetadata
-from adk_coder.policy import SAFE_BASH_COMMANDS
-from adk_coder.projects import find_project_root
-from adk_coder.status import status_manager
+from google.adk.runners import Runner
+from google.adk.sessions.in_memory_session_service import InMemorySessionService
 from google.adk.tools.base_tool import BaseTool
 from google.adk.tools.base_toolset import BaseToolset
 from google.adk.tools.function_tool import FunctionTool
-from google.adk.runners import Runner
-from google.adk.sessions.in_memory_session_service import InMemorySessionService
 from google.genai import types
+
+from adk_coder.models import ToolMetadata, ToolPolicy
+from adk_coder.policy import SAFE_BASH_COMMANDS
+from adk_coder.projects import find_project_root
+from adk_coder.status import status_manager
 
 
 def tool_metadata(
     policy: ToolPolicy,
     summary_template: str,
-    conditional_check: Optional[Callable[[Dict[str, Any]], bool]] = None,
+    conditional_check: Callable[[dict[str, Any]], bool] | None = None,
 ):
     """
     Decorator to attach security and summary metadata to a tool function.
@@ -86,7 +87,7 @@ async def ls(directory: str = ".", show_hidden: bool = False) -> str:
     try:
         return await asyncio.to_thread(_ls)
     except Exception as e:
-        return f"Error listing directory: {str(e)}"
+        return f"Error listing directory: {e!s}"
 
 
 @tool_metadata(ToolPolicy.READ_ONLY, "Reading {path}")
@@ -141,7 +142,7 @@ async def cat(path: str, start_line: int = 1, end_line: int | None = None) -> st
     except UnicodeDecodeError:
         return f"Error: {path} appears to be a binary file."
     except Exception as e:
-        return f"Error reading file: {str(e)}"
+        return f"Error reading file: {e!s}"
 
 
 @tool_metadata(ToolPolicy.READ_ONLY, "Reading {paths}")
@@ -173,7 +174,7 @@ async def write_file(path: str, content: str) -> str:
     try:
         return await asyncio.to_thread(_write)
     except Exception as e:
-        return f"Error writing file: {str(e)}"
+        return f"Error writing file: {e!s}"
 
 
 @tool_metadata(ToolPolicy.SENSITIVE, "Editing {path}")
@@ -220,7 +221,7 @@ async def edit_file(path: str, search_text: str, replacement_text: str) -> str:
     try:
         return await asyncio.to_thread(_edit)
     except Exception as e:
-        return f"Error editing file: {str(e)}"
+        return f"Error editing file: {e!s}"
 
 
 @tool_metadata(ToolPolicy.READ_ONLY, "Searching for {pattern} in {directory}")
@@ -282,10 +283,10 @@ async def grep(
     except subprocess.TimeoutExpired:
         return "Error: grep command timed out after 60 seconds."
     except Exception as e:
-        return f"Error running grep: {str(e)}"
+        return f"Error running grep: {e!s}"
 
 
-def _is_safe_bash(args: Dict[str, Any]) -> bool:
+def _is_safe_bash(args: dict[str, Any]) -> bool:
     """
     Checks if a bash command is in the pre-approved safe list.
 
@@ -338,7 +339,7 @@ async def bash(command: str, cwd: str = ".") -> str:
     except subprocess.TimeoutExpired:
         return "Error: Command timed out after 300 seconds."
     except Exception as e:
-        return f"Error executing command: {str(e)}"
+        return f"Error executing command: {e!s}"
 
 
 def _get_agent_metadata(agent_name: str) -> dict[str, Any]:
@@ -447,7 +448,7 @@ async def _run_subagent_task(
         status_manager.update(f"✅ [bold]{agent_name}[/bold] complete.")
         return "\n".join(report) if report else "Subagent failed to return a report."
     except Exception as e:
-        return f"Error in subagent: {str(e)}"
+        return f"Error in subagent: {e!s}"
 
 
 @tool_metadata(ToolPolicy.READ_ONLY, "Exploring codebase for: {task}")

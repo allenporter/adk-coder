@@ -1,13 +1,14 @@
-import click
 import json
-from adk_coder.settings import load_settings, load_global_settings, save_settings
+
+import click
+
 from adk_coder.projects import find_project_root
+from adk_coder.settings import load_global_settings, load_settings, save_settings
 
 
 @click.group()
 def config() -> None:
     """Manage global settings."""
-    pass
 
 
 @config.command(name="list")

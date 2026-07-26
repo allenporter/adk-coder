@@ -1,14 +1,13 @@
 import os
 import re
-from typing import Any, Dict, Optional
+from typing import Any
 
-
-from rich.markup import escape
 from google.adk.tools.base_tool import BaseTool
+from rich.markup import escape
 
 
 def summarize_tool_call(
-    name: str, args: Dict[str, Any], tool: Optional[BaseTool] = None
+    name: str, args: dict[str, Any], tool: BaseTool | None = None
 ) -> str:
     """
     Generate a human-readable summary of what a tool is about to do.
@@ -80,7 +79,7 @@ def summarize_tool_call(
     return f"Executing {escape(name)}"
 
 
-def summarize_tool_call_args(name: str, args: Dict[str, Any]) -> str:
+def summarize_tool_call_args(name: str, args: dict[str, Any]) -> str:
     """
     Generate a string representing the tool's input arguments.
     """
@@ -101,7 +100,7 @@ def summarize_tool_call_args(name: str, args: Dict[str, Any]) -> str:
     return "\n".join(f"{k}: {v}" for k, v in args.items())
 
 
-def summarize_tool_result(name: str, args: Dict[str, Any], result: str) -> str:
+def summarize_tool_result(name: str, args: dict[str, Any], result: str) -> str:
     """
     Generate a human-readable summary of what a tool achieved.
     """

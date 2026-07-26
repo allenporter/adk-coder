@@ -1,7 +1,10 @@
 import json
 import sys
-from typing import Optional, Callable, Awaitable, Any, Dict
+from collections.abc import Awaitable, Callable
+from typing import Any
+
 import click
+
 from adk_coder.models import ConfirmationResult
 
 
@@ -9,12 +12,13 @@ class ConfirmationManager:
     """Manages pending confirmation requests between the agent tools and the TUI."""
 
     def __init__(self):
-        self._request_callback: Optional[
+        self._request_callback: (
             Callable[
-                [str, str, Optional[str], Optional[Dict[str, Any]]],
+                [str, str, str | None, dict[str, Any] | None],
                 Awaitable[ConfirmationResult],
             ]
-        ] = None
+            | None
+        ) = None
 
     @property
     def has_callback(self) -> bool:
@@ -24,7 +28,7 @@ class ConfirmationManager:
     def register_callback(
         self,
         callback: Callable[
-            [str, str, Optional[str], Optional[Dict[str, Any]]],
+            [str, str, str | None, dict[str, Any] | None],
             Awaitable[ConfirmationResult],
         ],
     ):
@@ -34,8 +38,8 @@ class ConfirmationManager:
     async def request_confirmation(
         self,
         hint: str,
-        tool_name: Optional[str] = None,
-        tool_args: Optional[Dict[str, Any]] = None,
+        tool_name: str | None = None,
+        tool_args: dict[str, Any] | None = None,
     ) -> ConfirmationResult:
         """Called by a tool or plugin to request confirmation from the user."""
         # Returns ConfirmationResult

@@ -5,8 +5,8 @@ Quick validation logic for skills.
 """
 
 import os
-import sys
 import re
+import sys
 from pathlib import Path
 
 

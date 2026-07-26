@@ -1,10 +1,10 @@
-import sys
-import click
 import asyncio
-import uuid
-from typing import Optional, List, Any, Dict
 import logging
+import sys
+import uuid
+from typing import Any
 
+import click
 from google.adk.sessions.sqlite_session_service import SqliteSessionService
 from google.genai import types
 from rich.console import Console
@@ -16,16 +16,16 @@ from adk_coder.agent_factory import build_runner_or_exit
 from adk_coder.cli.config import config
 from adk_coder.cli.sessions import sessions
 from adk_coder.constants import APP_NAME
+from adk_coder.mcp import MCP_SERVERS_KEY, MCP_SERVERS_LEGACY_KEY
 from adk_coder.projects import find_project_root, get_project_id, get_session_db_path
-from adk_coder.status import is_session_locked, SessionLock
-from adk_coder.summarize import summarize_tool_call, summarize_tool_result
-from adk_coder.tui import AdkTuiApp
 from adk_coder.settings import (
-    load_settings,
     load_global_settings,
+    load_settings,
     save_settings,
 )
-from adk_coder.mcp import MCP_SERVERS_KEY, MCP_SERVERS_LEGACY_KEY
+from adk_coder.status import SessionLock, is_session_locked
+from adk_coder.summarize import summarize_tool_call, summarize_tool_result
+from adk_coder.tui import AdkTuiApp
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +39,7 @@ class DefaultGroup(click.Group):
 
     def resolve_command(
         self, ctx: click.Context, args: list[str]
-    ) -> tuple[str | None, Optional[click.Command], list[str]]:
+    ) -> tuple[str | None, click.Command | None, list[str]]:
         try:
             cmd_name, cmd, args = super().resolve_command(ctx, args)
             if cmd_name is None and self.default_command:
@@ -69,7 +69,7 @@ def setup_logging(verbose: bool) -> None:
 
 
 async def _get_project_context(
-    new_session: bool, resume_session_id: Optional[str]
+    new_session: bool, resume_session_id: str | None
 ) -> tuple[str, str]:
     """
     Returns the project ID (user_id) and session ID.
@@ -152,14 +152,14 @@ def cli(
     verbose: bool,
     print_mode: bool,
     new_session: bool,
-    resume_session_id: Optional[str],
-    add_dir: List[str],
-    model: Optional[str],
-    max_turns: Optional[int],
-    max_budget_usd: Optional[float],
-    system_prompt: Optional[str],
-    append_system_prompt: Optional[str],
-    permission_mode: Optional[str],
+    resume_session_id: str | None,
+    add_dir: list[str],
+    model: str | None,
+    max_turns: int | None,
+    max_budget_usd: float | None,
+    system_prompt: str | None,
+    append_system_prompt: str | None,
+    permission_mode: str | None,
     output_format: str,
 ) -> None:
     """adk-coder: A powerful agentic CLI built with google-adk."""
@@ -172,7 +172,7 @@ def cli(
 @click.argument("query", nargs=-1)
 @click.option("--print", "-p", "print_mode", is_flag=True)
 @click.pass_context
-def chat(ctx: click.Context, query: List[str], print_mode: bool) -> None:
+def chat(ctx: click.Context, query: list[str], print_mode: bool) -> None:
     """Execute a task or start a conversation."""
 
     query_str = " ".join(query)
@@ -198,7 +198,7 @@ def chat(ctx: click.Context, query: List[str], print_mode: bool) -> None:
             logger.debug(f"Executing one-off query in print mode: {query_str}")
             new_message = types.Content(role="user", parts=[types.Part(text=query_str)])
             # Keep track of tool call arguments so we can summarize the results correctly
-            pending_args: Dict[Optional[str], Dict[str, Any]] = {}
+            pending_args: dict[str | None, dict[str, Any]] = {}
 
             for event in runner.run(
                 user_id=project_id, session_id=session_id, new_message=new_message
@@ -320,7 +320,6 @@ def agents() -> None:
 @cli.group()
 def mcp() -> None:
     """Manages Model Context Protocol server connections."""
-    pass
 
 
 @mcp.command(name="list")
@@ -405,7 +404,7 @@ cli.add_command(sessions)
 cli.add_command(config)
 
 
-def main(args: Optional[List[str]] = None) -> None:
+def main(args: list[str] | None = None) -> None:
     if args is None:
         args = sys.argv[1:]
     cli(args=args)

@@ -2,11 +2,12 @@
 
 import json
 import os
-import pytest
 from pathlib import Path
 from unittest.mock import patch
 
-from adk_coder.api_key import load_api_key, save_api_key, load_env_file
+import pytest
+
+from adk_coder.api_key import load_api_key, load_env_file, save_api_key
 
 
 @pytest.fixture(autouse=True)

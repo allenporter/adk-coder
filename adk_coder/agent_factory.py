@@ -1,11 +1,10 @@
+import logging
 import os
 import sys
-import logging
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any
 
 import click
-
 from google.adk.agents.llm_agent import LlmAgent
 from google.adk.apps.app import App, EventsCompactionConfig
 from google.adk.planners import BuiltInPlanner
@@ -18,13 +17,13 @@ from google.genai import types
 
 from adk_coder.api_key import load_api_key, load_env_file
 from adk_coder.constants import APP_NAME, DEFAULT_MODEL
+from adk_coder.mcp import get_mcp_toolsets
 from adk_coder.policy import CustomPolicyEngine, PermissionMode, SecurityPlugin
 from adk_coder.projects import find_project_root, get_session_db_path
 from adk_coder.retry_gemini import AdkRetryGemini
 from adk_coder.settings import load_settings
 from adk_coder.skills import discover_skills
 from adk_coder.tools import get_essential_tools
-from adk_coder.mcp import get_mcp_toolsets
 
 logger = logging.getLogger(__name__)
 
@@ -56,7 +55,7 @@ To get started:
 """
 
 
-def _resolve_api_key() -> Optional[str]:
+def _resolve_api_key() -> str | None:
     """Load .env then return the API key, or None."""
     load_env_file(workspace_dir=os.getcwd())
     return load_api_key()

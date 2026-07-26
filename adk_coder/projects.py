@@ -8,7 +8,6 @@ import hashlib
 import json
 import logging
 from pathlib import Path
-from typing import Optional
 
 from adk_coder.settings import get_global_adk_dir
 
@@ -23,7 +22,7 @@ WORKSPACE_MARKERS = {
 }
 
 
-def find_project_root(start_path: Optional[Path] = None) -> Path:
+def find_project_root(start_path: Path | None = None) -> Path:
     """
     Search upwards from start_path to find a project root marker.
     Prioritizes .git as the strongest indicator of a repo root.

@@ -5,10 +5,10 @@ from pathlib import Path
 from unittest.mock import patch
 
 from adk_coder.settings import (
+    get_global_adk_dir,
+    get_global_settings_path,
     load_settings,
     save_settings,
-    get_global_settings_path,
-    get_global_adk_dir,
 )
 
 

@@ -9,8 +9,9 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
 
-from adk_coder.agent_factory import build_runner  # noqa: E402
 from google.genai import types  # noqa: E402
+
+from adk_coder.agent_factory import build_runner  # noqa: E402
 
 
 async def main():

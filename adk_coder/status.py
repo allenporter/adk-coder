@@ -1,8 +1,9 @@
+import logging
 import os
+from pathlib import Path
+
 import portalocker
 import psutil
-from pathlib import Path
-import logging
 
 from adk_coder.projects import get_global_adk_dir
 
@@ -55,7 +56,7 @@ class SessionLock:
             self._lock_file.write(str(os.getpid()))
             self._lock_file.flush()
             logger.debug(f"Locked session {self.session_id}")
-        except (portalocker.exceptions.LockException, IOError):
+        except (OSError, portalocker.exceptions.LockException):
             raise RuntimeError(
                 f"Session {self.session_id} is already in use by another process."
             )

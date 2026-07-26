@@ -1,5 +1,6 @@
+from collections.abc import Callable
 from enum import Enum, auto
-from typing import Any, Callable, Dict, Optional
+from typing import Any
 
 
 class ToolPolicy(Enum):
@@ -41,7 +42,7 @@ class ToolMetadata:
         self,
         policy: ToolPolicy,
         summary_template: str,
-        conditional_check: Optional[Callable[[Dict[str, Any]], bool]] = None,
+        conditional_check: Callable[[dict[str, Any]], bool] | None = None,
     ):
         self.policy = policy
         self.summary_template = summary_template

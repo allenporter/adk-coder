@@ -1,39 +1,40 @@
-import logging
 import asyncio
-from typing import Optional, Dict, Any, Callable
-from textual import on
-from textual.app import App, ComposeResult, Screen
-from textual.containers import Container, Horizontal, Vertical
-from textual.widgets import (
-    Header,
-    Footer,
-    Input,
-    Static,
-    Label,
-    Button,
-    LoadingIndicator,
-    Collapsible,
-    RadioButton,
-    RadioSet,
-)
-from textual.binding import Binding
-from textual.reactive import reactive
-from rich.text import Text
-from rich.markup import escape, render
-from rich.markdown import Markdown
+import logging
+from collections.abc import Callable
+from typing import Any
+
 from google.adk.runners import Runner
 from google.genai import types
-
+from rich.markdown import Markdown
+from rich.markup import escape, render
+from rich.text import Text
+from textual import on
+from textual.app import App, ComposeResult, Screen
+from textual.binding import Binding
+from textual.containers import Container, Horizontal, Vertical
+from textual.reactive import reactive
+from textual.widgets import (
+    Button,
+    Collapsible,
+    Footer,
+    Header,
+    Input,
+    Label,
+    LoadingIndicator,
+    RadioButton,
+    RadioSet,
+    Static,
+)
 
 from adk_coder.confirmation import confirmation_manager
-from adk_coder.status import status_manager
+from adk_coder.constants import APP_NAME
 from adk_coder.models import ConfirmationResult
+from adk_coder.status import status_manager
 from adk_coder.summarize import (
     summarize_tool_call,
     summarize_tool_call_args,
     summarize_tool_result,
 )
-from adk_coder.constants import APP_NAME
 
 logger = logging.getLogger(__name__)
 
@@ -44,9 +45,9 @@ class InlineConfirmation(Static):
     def __init__(
         self,
         hint: str,
-        tool_name: Optional[str] = None,
-        tool_args: Optional[Dict[str, Any]] = None,
-        future: Optional[asyncio.Future] = None,
+        tool_name: str | None = None,
+        tool_args: dict[str, Any] | None = None,
+        future: asyncio.Future | None = None,
     ):
         super().__init__()
         self.hint = hint
@@ -590,10 +591,10 @@ class ChatScreen(Screen):
 
     def __init__(
         self,
-        runner: Optional[Runner],
+        runner: Runner | None,
         user_id: str,
         session_id: str,
-        initial_query: Optional[str],
+        initial_query: str | None,
     ):
         super().__init__()
         self.runner = runner
@@ -610,27 +611,24 @@ class ChatScreen(Screen):
 
     def compose(self) -> ComposeResult:
         yield Header(show_clock=True)
-        with Container(id="main-container"):
-            with Vertical(id="chat-area"):
-                with Horizontal(id="status-bar"):
-                    yield Label(f"Project: [bold]{self.user_id}[/]", id="project-label")
-                    yield Label(
-                        f"Session: [bold]{self.session_id}[/]", id="session-label"
-                    )
-                chat_scroll = Vertical(id="chat-scroll")
-                chat_scroll.can_focus = True
-                with chat_scroll:
-                    yield Message(
-                        "Welcome to **ADK CLI**! How can I help you today?\n\n"
-                        "Type `/quit` or press **Ctrl+C** to exit.",
-                        role="agent",
-                    )
-                with Horizontal(id="input-container"):
-                    yield Label("✦ ")
-                    yield Input(
-                        placeholder="Ask anything... (or /quit to exit)",
-                        id="user-input",
-                    )
+        with Container(id="main-container"), Vertical(id="chat-area"):
+            with Horizontal(id="status-bar"):
+                yield Label(f"Project: [bold]{self.user_id}[/]", id="project-label")
+                yield Label(f"Session: [bold]{self.session_id}[/]", id="session-label")
+            chat_scroll = Vertical(id="chat-scroll")
+            chat_scroll.can_focus = True
+            with chat_scroll:
+                yield Message(
+                    "Welcome to **ADK CLI**! How can I help you today?\n\n"
+                    "Type `/quit` or press **Ctrl+C** to exit.",
+                    role="agent",
+                )
+            with Horizontal(id="input-container"):
+                yield Label("✦ ")
+                yield Input(
+                    placeholder="Ask anything... (or /quit to exit)",
+                    id="user-input",
+                )
         yield Footer()
 
     async def on_mount(self) -> None:
@@ -751,7 +749,7 @@ class ChatScreen(Screen):
         current_thought_message = None
         current_tool_message = None
         # Keep track of tool call arguments so we can summarize the results correctly
-        pending_args: Dict[Optional[str], Dict[str, Any]] = {}
+        pending_args: dict[str | None, dict[str, Any]] = {}
 
         chat_scroll = self.query_one("#chat-scroll", Vertical)
 
@@ -956,7 +954,7 @@ class ChatScreen(Screen):
         except Exception as e:
             logger.exception("Error during runner execution:")
             await chat_scroll.mount(
-                Message(f"❌ Error: {str(e)}", role="agent"), before=loading_container
+                Message(f"❌ Error: {e!s}", role="agent"), before=loading_container
             )
             chat_scroll.scroll_end()
         finally:
@@ -1004,8 +1002,8 @@ class AdkTuiApp(App):
 
     def __init__(
         self,
-        initial_query: Optional[str] = None,
-        runner: Optional[Runner] = None,
+        initial_query: str | None = None,
+        runner: Runner | None = None,
         user_id: str = "default_user",
         session_id: str = "default_session",
     ):
@@ -1044,8 +1042,8 @@ class AdkTuiApp(App):
         self,
         req_id: str,
         hint: str,
-        tool_name: Optional[str] = None,
-        tool_args: Optional[Dict[str, Any]] = None,
+        tool_name: str | None = None,
+        tool_args: dict[str, Any] | None = None,
     ) -> ConfirmationResult:
         """
         Displays an inline widget to ask for user confirmation.

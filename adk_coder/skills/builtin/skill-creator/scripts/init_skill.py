@@ -10,9 +10,9 @@ Examples:
     python3 init_skill.py my-new-skill --path skills/public
 """
 
+import argparse
 import os
 import sys
-import argparse
 from pathlib import Path
 
 SKILL_TEMPLATE = """---

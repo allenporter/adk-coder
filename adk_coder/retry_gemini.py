@@ -2,12 +2,12 @@ import asyncio
 import logging
 import random
 import re
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 from google.adk.models.google_llm import Gemini, _ResourceExhaustedError
-from google.genai.errors import ClientError
 from google.adk.models.llm_request import LlmRequest
 from google.adk.models.llm_response import LlmResponse
+from google.genai.errors import ClientError
 
 from adk_coder.status import status_manager
 
@@ -19,7 +19,7 @@ class AdkRetryGemini(Gemini):
 
     async def generate_content_async(
         self, llm_request: LlmRequest, stream: bool = False
-    ) -> AsyncGenerator[LlmResponse, None]:
+    ) -> AsyncGenerator[LlmResponse]:
         max_attempts = 10
         base_delay = 5.0
         max_delay = 60.0

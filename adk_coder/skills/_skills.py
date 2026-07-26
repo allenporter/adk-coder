@@ -9,10 +9,9 @@ Each SKILL.md must have YAML frontmatter with at minimum `name` and
 
 from __future__ import annotations
 
-import logging
 import importlib.resources
+import logging
 from pathlib import Path
-from typing import Optional
 
 import yaml
 from google.adk.skills import Frontmatter, Resources, Skill
@@ -39,7 +38,7 @@ def _normalize_skill_name(name: str) -> str:
     return name.lower().replace("_", "-")
 
 
-def _load_skill_from_content(content: str, source: str) -> Optional[Skill]:
+def _load_skill_from_content(content: str, source: str) -> Skill | None:
     """Load a single skill from content string.
 
     Args:
@@ -107,7 +106,7 @@ def _load_skill_from_content(content: str, source: str) -> Optional[Skill]:
 
 
 # TODO: Remove this once google-adk provides `load_skill_from_dir` natively (added in google/adk-python@223d9a7)
-def load_skill_from_dir(skill_md_path: Path) -> Optional[Skill]:
+def load_skill_from_dir(skill_md_path: Path) -> Skill | None:
     """Load a single skill from a SKILL.md file.
 
     Args:
@@ -126,7 +125,7 @@ def load_skill_from_dir(skill_md_path: Path) -> Optional[Skill]:
 
 
 def discover_skills(
-    cwd: Optional[Path] = None, *, include_builtin: bool = True
+    cwd: Path | None = None, *, include_builtin: bool = True
 ) -> list[Skill]:
     """Discover all skills from workspace directories at or above cwd.
 
