@@ -1,8 +1,9 @@
-from click.testing import CliRunner
-from adk_coder.main import cli
+import time
 from unittest.mock import patch, AsyncMock
+from click.testing import CliRunner
 from google.adk.events.event import Event
 from google.genai import types
+from adk_coder.main import cli
 
 
 def test_cli_help() -> None:
@@ -116,8 +117,6 @@ def test_cli_sessions_gc_old_sessions() -> None:
         mock_instance = mock_service.return_value
         mock_instance.list_sessions = AsyncMock()
         mock_instance.delete_session = AsyncMock()
-
-        import time
 
         old_time = time.time() - (40 * 24 * 60 * 60)  # 40 days ago
         recent_time = time.time() - (5 * 24 * 60 * 60)  # 5 days ago

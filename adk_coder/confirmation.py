@@ -1,5 +1,7 @@
-from typing import Optional, Callable, Awaitable, Any, Dict
 import json
+import sys
+from typing import Optional, Callable, Awaitable, Any, Dict
+import click
 from adk_coder.models import ConfirmationResult
 
 
@@ -42,12 +44,8 @@ class ConfirmationManager:
             return await self._request_callback("current", hint, tool_name, tool_args)
 
         # If we are in a TTY (CLI mode), ask using a Click prompt.
-        import sys
-
         if sys.stdin.isatty():
             try:
-                import click
-
                 msg = f"\n⚠️  {hint}"
                 if tool_name:
                     msg += f"\nTool: {tool_name}"
